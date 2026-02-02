@@ -1,16 +1,24 @@
 package com.hospital.service;
 
 import com.hospital.exceptions.ResourceNotFoundException;
+import com.hospital.model.DTO.PatientInput;
+import com.hospital.model.DTO.PatientResponse;
 import com.hospital.model.Patient;
+import com.hospital.model.mapper.PatientMapper;
 import com.hospital.repository.PatientRepository;
+import com.hospital.specification.PatientSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -20,24 +28,27 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
 
-    public Patient addPatient(Patient patient) {
+    public PatientResponse addPatient(PatientInput input) {
         // save() = INSERT when id is null
-
-        return patientRepository.save(patient);
+        Patient patient = PatientMapper.toEntity(input);
+        Patient saved = patientRepository.save(patient);
+        return PatientMapper.toResponse(saved);
     }
 
+    @CacheEvict(value = "patients", key = "#id")
     public Patient updatePatient(Long id, Patient updatedData) {
         Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
         mapToModel(updatedData, p);
         // save() = UPDATE because entity is managed
         return patientRepository.save(p);
     }
-
+@CacheEvict(value = "patients", key = "#id")
     public void deletePatient(Long id) {
-      Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
+        Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
         patientRepository.deleteById(id);
     }
 
+    @Cacheable(value = "patients", key = "#id")
     @Transactional(readOnly = true)
     public Patient getPatientById(Long id) {
         return patientRepository.findById(id)
@@ -52,14 +63,15 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Patient> searchPatients(String lastName, int number, int size,String sortBy,String direction) {
-Sort sort = direction.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
-Pageable pageable = PageRequest.of(number, size, sort);
-if (lastName == null || lastName.isBlank()) {
-    return patientRepository.findAll(pageable);
-}
+    public Page<Patient> searchPatients(String lastName, Character gender,
+                                        LocalDate bornAfter, int number, int size, String sortBy, String direction) {
 
-        return patientRepository.findByLastNameContainingIgnoreCase(lastName, pageable);
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(number, size, sort);
+
+        Specification<Patient> spec = Specification.where(PatientSpecification.hasLastName(lastName)).and(PatientSpecification.hasGender(gender)).and(PatientSpecification.bornAfter(bornAfter));
+
+        return patientRepository.findAll(spec, pageable);
     }
 
     private void mapToModel(Patient source, Patient target) {
