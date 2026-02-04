@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Doctor {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long doctorId;
@@ -27,5 +28,6 @@ public class Doctor {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
 }
 

@@ -10,7 +10,7 @@ public class DoctorInput {
     @NotBlank(message = "Doctor's first name is required")
     private String firstName;
 
-    @NotBlank(message = "doctor's second name is required")
+    @NotBlank(message = "Doctor's second name is required")
     private String lastName;
 
     @NotBlank(message = "Specialization is required")

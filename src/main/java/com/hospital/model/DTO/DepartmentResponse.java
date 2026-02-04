@@ -12,6 +12,5 @@ public class DepartmentResponse {
     private String name;
     private String location;
 
-    // getters & setters
 }
 
