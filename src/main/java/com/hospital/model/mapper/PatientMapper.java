@@ -17,14 +17,16 @@ public class PatientMapper {
             return patient;
         }
 
-        public static void updateEntity(PatientInput dto, Patient patient) {
-            if (dto.getFirstName() != null) patient.setFirstName(dto.getFirstName());
-            if (dto.getLastName() != null) patient.setLastName(dto.getLastName());
-            if (dto.getGender() != null) patient.setGender(dto.getGender());
-            if (dto.getDateOfBirth() != null) patient.setDob(dto.getDateOfBirth());
-            if (dto.getPhone() != null) patient.setPhone(dto.getPhone());
-            if (dto.getEmail() != null) patient.setEmail(dto.getEmail());
-        }
+
+    public static void updateEntity(PatientInput dto, Patient patient) {
+        if (dto.getFirstName() != null) patient.setFirstName(dto.getFirstName());
+        if (dto.getLastName() != null) patient.setLastName(dto.getLastName());
+        if (dto.getGender() != null) patient.setGender(dto.getGender());
+        if (dto.getDateOfBirth() != null) patient.setDob(dto.getDateOfBirth());
+        if (dto.getPhone() != null) patient.setPhone(dto.getPhone());
+        if (dto.getEmail() != null) patient.setEmail(dto.getEmail());
+    }
+
     public static PatientResponse toResponse(Patient patient) {
         PatientResponse dto = new PatientResponse();
         dto.setId(patient.getPatientId());
