@@ -1,0 +1,70 @@
+# Appointment-related types
+enum Status {
+    PENDING
+    COMPLETED
+    CANCELLED
+}
+
+type Patient {
+    id: ID!
+    firstName: String!
+    lastName: String!
+}
+
+type Doctor {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    specialization: String
+}
+
+type Appointment {
+    appointmentId: ID!
+    patientName: String!
+    doctorName: String!
+    appointmentDate: String!
+    status: Status!
+}
+
+type AppointmentReport {
+    appointmentId: ID!
+    appointmentDate: String!
+    status: Status!
+    relatedName: String! # Could be doctor or patient depending on context
+}
+
+type FullAppointmentReport {
+    appointmentId: ID!
+    appointmentDate: String!
+    status: Status!
+    patientName: String!
+    doctorName: String!
+    departmentName: String!
+}
+
+input AppointmentInput {
+    patientId: ID!
+    doctorId: ID!
+    appointmentDate: String!
+    status: Status!
+}
+
+input pagination{
+    page: Int!
+    size: Int!
+}
+type Query {
+    getAppointmentById(id: ID!): Appointment
+    getAllAppointments: [Appointment!]!
+    searchAppointmentsByStatus(status: Status!): [Appointment!]!
+    getAppointmentsByPatient(patientId: ID!): [AppointmentReport!]!
+    getAppointmentsByDoctor(doctorId: ID!): [AppointmentReport!]!
+    getFullAppointmentReport(page: Int! ,size:Int!): [FullAppointmentReport!]!
+    getAppointmentsWithoutPrescription: [FullAppointmentReport!]!
+}
+
+type Mutation {
+    addAppointment(input: AppointmentInput!): Appointment!
+    updateAppointment(id: ID!, input: AppointmentInput!): Appointment!
+    deleteAppointment(id: ID!): Boolean!
+}
