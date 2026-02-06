@@ -1,0 +1,29 @@
+type Feedback {
+    feedbackId: Int!
+    patientId: Int!
+    doctorId: Int!
+    rating: Int!
+    comment: String!
+    createdDate: String!
+}
+
+input FeedbackInput {
+    patientId: Int!
+    doctorId: Int!
+    rating: Int!
+    comment: String!
+}
+
+
+extend type Query {
+    feedbackById(id: Int!): Feedback
+    allFeedback(page: Int = 0, size: Int = 10): Feedback
+    feedbackByDoctor(doctorId: Int!, page: Int = 0, size: Int = 10): Feedback
+    feedbackByPatient(patientId: Int!, page: Int = 0, size: Int = 10): Feedback
+}
+
+extend type Mutation {
+    createFeedback(input: FeedbackInput!): Feedback!
+    updateFeedback(id: Int!, input: FeedbackInput!): Feedback!
+    deleteFeedback(id: Int!): Boolean!
+}
