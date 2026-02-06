@@ -1,0 +1,37 @@
+enum Role{
+    ADMIN,RECEPTIONIST,DOCTOR,NURSE
+}
+type UserResponse {
+    userId: ID!
+    username: String!
+    fullName: String!
+    status: Boolean!
+    createdAt: String!
+}
+
+input UserInput {
+    username: String!
+    email: String!
+    password: String!
+}
+
+
+
+extend type Query {
+    userById(id: ID!): UserResponse
+    userByUsername(username: String!): UserResponse
+    users(
+        page: Int = 0
+        size: Int = 10
+        sortBy: String = "username"
+        direction: String = "asc"
+    ): UserResponse
+}
+
+extend type Mutation {
+    createUser(input: UserInput!): UserResponse!
+    updateUser(id: ID!, input: UserInput!): UserResponse!
+    enableUser(id: ID!): Boolean!
+    disableUser(id: ID!): Boolean!
+    deleteUser(id: ID!): Boolean!
+}

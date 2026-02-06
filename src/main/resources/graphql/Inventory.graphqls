@@ -1,0 +1,14 @@
+type InventoryViewDTO {
+    medicationId: ID!
+    medicationName: String!
+    quantity: Int!
+    lastUpdated: String!
+}
+
+extend type Query {
+    inventoryView: [InventoryViewDTO!]!
+    lowStockItems: [InventoryViewDTO!]!
+    inventoryViewPage(page: Int!, size: Int!): InventoryViewDTO!
+}
+
+

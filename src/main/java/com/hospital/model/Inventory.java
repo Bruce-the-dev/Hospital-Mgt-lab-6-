@@ -1,6 +1,7 @@
 package com.hospital.model;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,12 @@ public class Inventory {
     private LocalDateTime lastUpdated;
 
     @OneToOne
-    @JoinColumn(name = "medication_id")
+    @JoinColumn(name = "medication_id",nullable = false, unique = true)
     private Medication medication;
+
+    @PrePersist
+    public void prePersist() {
+        this.lastUpdated = LocalDateTime.now();
+    }
 }
 

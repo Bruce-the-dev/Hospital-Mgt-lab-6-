@@ -7,8 +7,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "patients"
-//        ,indexes = {
-//        @Index(name = "idx_last_name", columnList = "lastName")}
+        ,indexes = {
+        @Index(name = "idx_patient_lastname", columnList = "lastName")}
 )
 @Getter
 @Setter

@@ -1,5 +1,6 @@
 package com.hospital.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
 
     // Resource: patient or medicine not found
         @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handlePatientNotFound(ResourceNotFoundException ex, WebRequest request) {
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
             Map<String, Object> body = new HashMap<>();
             body.put("timestamp", new Date());
             body.put("status", HttpStatus.NOT_FOUND.value());
@@ -43,6 +44,41 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body); // 404 Not Found
     }
 
+    //
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "Conflict");
+//        body.put("message", ex.getMessage());
+
+        String message = "Data integrity violation";
+        ex.getMostSpecificCause();
+        if (ex.getMostSpecificCause().getMessage() != null &&
+                ex.getMostSpecificCause().getMessage().toLowerCase().contains("username"))
+        {
+
+            message = "Username already exists";
+        }
+
+        body.put("message", message);
+        body.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalExceptions(IllegalArgumentException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
     // generic exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(

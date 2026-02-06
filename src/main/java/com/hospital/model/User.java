@@ -2,6 +2,7 @@ package com.hospital.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +11,12 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_users_username", columnList = "username"),
+                @Index(name = "idx_users_role", columnList = "role"),
+                @Index(name = "idx_users_status", columnList = "status")})
+
 public class User {
 
     @Id
@@ -18,7 +24,7 @@ public class User {
     private Long userId;
 
     @Column(nullable = false, length = 100, unique = true)
-    private String userName;
+    private String username;
 
     @Column(nullable = false, length = 100)
     private String fullName;
@@ -31,11 +37,14 @@ public class User {
     @Column(nullable = false)
     private boolean status = true;
 
+    @Column(nullable = false, updatable = false)
+
     private LocalDateTime createdAt;
 
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 }
+
 
