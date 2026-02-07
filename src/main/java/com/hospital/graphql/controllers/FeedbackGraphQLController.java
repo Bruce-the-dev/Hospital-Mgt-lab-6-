@@ -47,7 +47,7 @@ public class FeedbackGraphQLController {
         return feedbackService.getByDoctor(doctorId, PageRequest.of(p, s));
     }
 
-    
+
 
     @QueryMapping
     public Page<FeedbackResponseDTO> feedbackByPatient(

@@ -33,6 +33,7 @@ public class FeedbackService {
         return FeedbackMapper.toDto(feedback);
     }
 
+    @CacheEvict(value = "feedback", allEntries = true)
     public FeedbackResponseDTO create(FeedbackRequestDTO dto) {
         Feedback feedback = FeedbackMapper.toEntity(dto);
 
@@ -75,10 +76,28 @@ public class FeedbackService {
                 .map(FeedbackMapper::toDto);
     }
 
+    @CacheEvict()
     public FeedbackResponseDTO update(Long id,  FeedbackRequestDTO dto) {
-        return feedbackRepository.findById(id).map(FeedbackMapper::toDto)   .orElseThrow(() ->
+        Feedback feedback = feedbackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("No feedback found with id " + id)
-        )
-        ;
+        );
+        feedback.setPatient(
+                patientRepository.findById(dto.getPatientId())
+                        .orElseThrow(() -> new RuntimeException("Patient not found"))
+        );
+
+        feedback.setDoctor(
+                doctorRepository.findById(dto.getDoctorId())
+                        .orElseThrow(() -> new RuntimeException("Doctor not found"))
+        );
+        if (dto.getComment() != null) {
+            feedback.setComment(dto.getComment());
+        }
+        if (dto.getRating()>=0){
+            feedback.setRating(dto.getRating());
+        }
+
+// Hibernate will flush changes automatically at transaction commit
+        return  FeedbackMapper.toDto(feedback);
     }
 }
