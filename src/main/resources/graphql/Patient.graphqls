@@ -1,0 +1,32 @@
+# Define Patient Type based on the PatientResponse DTO
+type PatientResponse {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    gender: String
+    dateOfBirth: String
+    email: String
+    phone: String
+}
+
+input PatientInput {
+    firstName: String!
+    lastName: String!
+    gender: String
+    dateOfBirth: String
+    email: String
+    phone: String
+}
+
+extend type Query {
+    getPatientById(id: ID!): PatientResponse
+    getPatientsByPage(page: Int, size: Int, sortBy: String, direction: String): [PatientResponse]
+    searchPatients(lastName: String, gender: String, bornAfter: String, page: Int, size: Int, sortBy: String, direction: String): [PatientResponse]
+}
+
+extend type Mutation {
+
+    createPatient(input: PatientInput!): PatientResponse
+    updatePatient(id: ID!, input: PatientInput!): PatientResponse
+    deletePatient(id: ID!): Boolean
+}

@@ -19,6 +19,5 @@ public class DoctorInput {
     @NotNull(message = "Department ID is required")
     private Long departmentId;
 
-    // getters & setters
 }
 

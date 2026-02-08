@@ -1,0 +1,31 @@
+type Medication {
+    medicationId: ID!
+    name: String!
+    description: String!
+}
+
+input MedicationCreateRequest {
+    name: String!
+    description: String!
+}
+
+input MedicationUpdateRequest {
+    name: String
+    description: String
+}
+
+extend type Query {
+    getMedicationById(id: ID!): Medication
+    getAllMedications(
+        page: Int
+        size: Int
+        sortBy: String
+        direction: String
+    ): [Medication!]!
+}
+
+extend type Mutation {
+    createMedication(input: MedicationCreateRequest!): Medication
+    updateMedication(id: ID!, input: MedicationUpdateRequest!): Medication
+    deleteMedication(id: ID!): Boolean
+}

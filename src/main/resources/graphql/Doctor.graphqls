@@ -1,0 +1,27 @@
+type DoctorResponse {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    specialization: String
+    departmentId: ID
+    departmentName: String
+}
+
+input DoctorInput {
+    firstName: String!
+    lastName: String!
+    specialization: String
+    departmentId: ID!
+}
+
+extend type Query {
+    getDoctorById(id: ID!): DoctorResponse
+    getAllDoctors: [DoctorResponse!]!
+    getDoctorsByDepartment(departmentId: ID!): [DoctorResponse!]!
+}
+
+extend type Mutation {
+    createDoctor(input: DoctorInput!): DoctorResponse
+    updateDoctor(id: ID!, input: DoctorInput!): DoctorResponse
+    deleteDoctor(id: ID!): Boolean
+}

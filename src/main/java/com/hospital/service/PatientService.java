@@ -75,4 +75,8 @@ public class PatientService {
     }
 
 
+    public Page<PatientResponse> getPatientsByPage(int page, int size, String sortBy, String direction) {
+   Pageable pageable = PageRequest.of(page, size, Sort.by(direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC));
+    return patientRepository.findAll(pageable).map(PatientMapper::toResponse);
+    }
 }

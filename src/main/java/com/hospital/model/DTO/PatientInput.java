@@ -32,5 +32,4 @@ public class PatientInput {
     @NotBlank(message = "Email is required")
     private String email;
 
-    // getters & setters
 }

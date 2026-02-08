@@ -1,0 +1,50 @@
+type Prescription {
+    prescriptionId: ID!
+    issuedDate: String
+    notes: String
+    appointment: ID!
+    prescriptionMedications: [ID!]!
+}
+
+type PrescriptionReport {
+    prescriptionId: ID!
+    patientName: String
+    appointmentId,: ID!
+    doctorName: String
+    issuedDate: String
+    dosage: String
+    medicationName: [String!]!
+}
+
+input PrescriptionCreateRequest {
+    appointmentId: ID!
+    issuedDate: String
+    notes: String
+    medications: [ID!]!
+}
+
+input PrescriptionUpdateRequest {
+    issuedDate: String
+    notes: String
+    medications: [ID!]
+}
+
+extend type Query {
+    getPrescriptionById(id: ID!): Prescription
+
+    getAllPrescriptionReports(
+        size: Int
+        page: Int
+        sortBy: String
+        direction: String
+    ): [PrescriptionReport!]!
+
+    getPrescriptionReportsByPatient(patientId: ID!): [PrescriptionReport!]!
+    getPrescriptionReportsByDoctor(doctorId: ID!): [PrescriptionReport!]!
+}
+
+extend type Mutation {
+    createPrescription(input: PrescriptionCreateRequest!): Prescription
+    updatePrescription(id: ID!, input: PrescriptionUpdateRequest!): Prescription
+    deletePrescription(id: ID!): Boolean
+}
