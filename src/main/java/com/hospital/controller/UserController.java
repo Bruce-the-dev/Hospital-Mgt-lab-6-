@@ -1,6 +1,7 @@
 package com.hospital.controller;
 
 import com.hospital.model.DTO.UserInput;
+import com.hospital.model.DTO.UserLogin;
 import com.hospital.model.DTO.UserResponse;
 import com.hospital.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,6 +27,10 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/whoami")
+    public ResponseEntity<?> whoami(Authentication auth) {
+        return ResponseEntity.ok(auth.getAuthorities());
+    }
     // Create user
     @Operation(summary = "Create a new user")
     @ApiResponses({
@@ -137,4 +143,7 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 }

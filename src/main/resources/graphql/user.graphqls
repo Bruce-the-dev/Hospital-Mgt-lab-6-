@@ -11,7 +11,12 @@ type UserResponse {
 
 input UserInput {
     username: String!
-    email: String!
+    fullName:String!
+    password: String!
+    role: Role!
+}
+input UserLogin{
+    userName: String!
     password: String!
 }
 
@@ -26,6 +31,7 @@ extend type Query {
         sortBy: String = "username"
         direction: String = "asc"
     ): UserResponse
+    login(user: UserLogin!): String!
 }
 
 extend type Mutation {

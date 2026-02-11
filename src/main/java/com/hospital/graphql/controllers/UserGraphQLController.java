@@ -1,8 +1,10 @@
 package com.hospital.graphql.controllers;
 
 import com.hospital.model.DTO.UserInput;
+import com.hospital.model.DTO.UserLogin;
 import com.hospital.model.DTO.UserResponse;
 import com.hospital.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -15,6 +17,14 @@ import org.springframework.stereotype.Controller;
 public class UserGraphQLController {
 
     private final UserService userService;
+
+    @QueryMapping
+    public String login(
+          @Valid  @Argument UserLogin user
+    ) {
+        System.out.print(user.getUserName());
+        return userService.authenticateUser(user.getUserName(), user.getPassword());
+    }
 
 
     @QueryMapping
@@ -39,7 +49,7 @@ public class UserGraphQLController {
     }
 
     @MutationMapping
-    public UserResponse createUser(@Argument UserInput input) {
+    public UserResponse createUser(@Valid @Argument UserInput input) {
 
         return userService.createUser(input);
     }
@@ -47,7 +57,7 @@ public class UserGraphQLController {
     @MutationMapping
     public UserResponse updateUser(
             @Argument Long id,
-            @Argument UserInput input) {
+           @Valid @Argument UserInput input) {
 
         return userService.updateUser(id, input);
     }
