@@ -16,7 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +24,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/prescriptions")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Prescriptions", description = "Prescription management APIs")
 public class PrescriptionController {
 
@@ -39,6 +38,7 @@ public class PrescriptionController {
             }
     )
     @PostMapping
+    @PreAuthorize("hasAnyRole('DOCTOR','NURSE')")
     public ResponseEntity<Prescription> createPrescription(
             @Valid @RequestBody PrescriptionCreateRequest request
     ) {
@@ -55,6 +55,7 @@ public class PrescriptionController {
             }
     )
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE')")
     public ResponseEntity<Prescription> getPrescriptionById(
             @Parameter(description = "Prescription ID", example = "1")
             @PathVariable @Min(1) Long id
@@ -71,6 +72,7 @@ public class PrescriptionController {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE')")
     public ResponseEntity<Prescription> updatePrescription(
             @Parameter(description = "Prescription ID", example = "1")
             @PathVariable @Min(1) Long id,
@@ -91,6 +93,7 @@ public class PrescriptionController {
     )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE')")
     public void deletePrescription(
             @Parameter(description = "Prescription ID", example = "1")
             @PathVariable @Min(1) Long id
@@ -103,6 +106,7 @@ public class PrescriptionController {
             description = "Returns paginated prescription reports with sorting support"
     )
     @GetMapping("/reports")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE','RECEPTIONIST')")
     public ResponseEntity<List<PrescriptionReportDTO>> getAllReports(
             @RequestParam(defaultValue = "10") @Min(1) int size,
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -118,6 +122,7 @@ public class PrescriptionController {
             summary = "Get prescription reports by patient",
             description = "Fetch all prescription reports for a specific patient"
     )
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE','RECEPTIONIST')")
     @GetMapping("/reports/patient/{patientId}")
     public ResponseEntity<List<PrescriptionReportDTO>> getReportsByPatient(
             @Parameter(description = "Patient ID", example = "5")
@@ -133,6 +138,7 @@ public class PrescriptionController {
             description = "Fetch all prescription reports written by a specific doctor"
     )
     @GetMapping("/reports/doctor/{doctorId}")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE','RECEPTIONIST')")
     public ResponseEntity<List<PrescriptionReportDTO>> getReportsByDoctor(
             @Parameter(description = "Doctor ID", example = "3")
             @PathVariable @Min(1) Long doctorId

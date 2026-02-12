@@ -21,6 +21,7 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<DoctorResponse> createDoctor(
             @Valid @RequestBody DoctorInput input) {
         DoctorResponse response = doctorService.addDoctor(input);
@@ -28,18 +29,21 @@ public class DoctorController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DoctorResponse>> getAllDoctors() {
         List<DoctorResponse> doctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(doctors);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<DoctorResponse> getDoctorById(@PathVariable Long id) {
         DoctorResponse doctor = doctorService.getDoctorById(id);
         return ResponseEntity.ok(doctor);
     }
 
     @GetMapping("/department/{departmentId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DoctorResponse>> getDoctorsByDepartment(
             @PathVariable Long departmentId) {
         List<DoctorResponse> doctors = doctorService.getDoctorsByDepartment(departmentId);
@@ -47,6 +51,7 @@ public class DoctorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<DoctorResponse> updateDoctor(
             @PathVariable Long id,
             @Valid @RequestBody DoctorInput input) {

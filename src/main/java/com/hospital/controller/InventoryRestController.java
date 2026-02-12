@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,18 +23,21 @@ public class InventoryRestController {
 
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @Operation(summary = "Get all inventory items")
     public ResponseEntity<List<InventoryViewDTO>> getAllInventory() {
         return ResponseEntity.ok(inventoryService.getInventoryView());
     }
 
     @GetMapping("/low-stock")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @Operation(summary = "Get inventory items with low stock")
     public ResponseEntity<List<InventoryViewDTO>> getLowStockItems() {
         return ResponseEntity.ok(inventoryService.getLowStockItems());
     }
 
     @GetMapping("/{medicationId}/stock")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @Operation(summary = "Get current stock for a specific medication")
     public ResponseEntity<Integer> getStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId) {
@@ -42,6 +46,7 @@ public class InventoryRestController {
 
     @GetMapping("/page")
     @Operation(summary = "Get inventory with pagination")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     public ResponseEntity<Page<InventoryViewDTO>> getInventoryPage(
             @Parameter(description = "Page number (0-based)") @RequestParam int page,
             @Parameter(description = "Page size") @RequestParam int size) {
@@ -50,6 +55,7 @@ public class InventoryRestController {
 
 
     @PostMapping("/{medicationId}/add")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     @Operation(summary = "Add stock for a medication")
     public ResponseEntity<Void> addStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId,
@@ -59,6 +65,7 @@ public class InventoryRestController {
     }
 
     @PutMapping("/{medicationId}/update")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @Operation(summary = "Update stock for a medication")
     public ResponseEntity<Void> updateStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId,
@@ -68,6 +75,7 @@ public class InventoryRestController {
     }
 
     @PutMapping("/{medicationId}/deduct")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @Operation(summary = "Deduct stock for a medication")
     public ResponseEntity<Boolean> deductStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId,
