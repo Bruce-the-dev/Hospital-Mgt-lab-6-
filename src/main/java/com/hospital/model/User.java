@@ -2,7 +2,6 @@ package com.hospital.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -26,10 +25,13 @@ public class User {
     @Column(nullable = false, length = 100, unique = true)
     private String username;
 
+    @Column(length = 100, unique = true)
+    private String email;
+
     @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 100)
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;

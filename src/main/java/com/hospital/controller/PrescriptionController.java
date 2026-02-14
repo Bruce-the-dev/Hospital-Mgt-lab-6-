@@ -110,8 +110,8 @@ public class PrescriptionController {
     public ResponseEntity<List<PrescriptionReportDTO>> getAllReports(
             @RequestParam(defaultValue = "10") @Min(1) int size,
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "issuedDate") @NotBlank String sortBy,
-            @RequestParam(defaultValue = "asc") @NotBlank String direction
+            @RequestParam(defaultValue = "issuedDate")  String sortBy,
+            @RequestParam(defaultValue = "asc")  String direction
     ) {
         return ResponseEntity.ok(
                 prescriptionService.getAllPrescriptionReports(size, page, sortBy, direction)

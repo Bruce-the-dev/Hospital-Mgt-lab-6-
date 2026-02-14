@@ -19,9 +19,13 @@ public class UserInput {
     @Size(max = 100, message = "Full name must not exceed 100 characters")
     private String fullName;
 
+
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 255, message = "Password must be at least 8 characters")
     private String password;
+
+    @NotBlank(message = "Email is required, Email must be of end in @example.abc")
+    private String email;
 
     @NotNull(message = "Role is required")
     private Role role;

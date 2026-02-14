@@ -19,13 +19,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
-@RequestMapping("/auth")
+
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -42,7 +44,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Login successful"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<LoginResponse> login(@RequestBody UserLogin request) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -63,7 +65,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
-    @PostMapping
+    @PostMapping("/auth")
     public ResponseEntity<UserResponse> createUser(
             @Valid @RequestBody UserInput input) {
 
@@ -71,4 +73,25 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+
+    @GetMapping("/auth/me")
+    public Map<String, Object> me(Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || Objects.equals(authentication.getPrincipal(), "anonymousUser")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"User not authenticated");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("principal", authentication.getPrincipal());
+        response.put("authorities", authentication.getAuthorities());
+
+        return response;
+    }
+
+
+    @GetMapping("/")
+    public String home() {
+        return "Login successful. Welcome to Hospital Management System!";
+    }
 }

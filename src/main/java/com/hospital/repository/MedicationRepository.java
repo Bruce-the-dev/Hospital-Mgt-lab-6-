@@ -13,7 +13,6 @@ public interface MedicationRepository
         extends JpaRepository<Medication, Long> {
 
 
-    Optional<Medication> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
 
 }

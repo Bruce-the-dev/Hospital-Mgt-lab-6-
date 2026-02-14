@@ -12,9 +12,4 @@ import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpecificationExecutor<Patient> {
-
-//    Optional<Patient> findByEmail(String email);
-
-//    Optional<Patient> findByPhone(String phone);
-//    Page<Patient> findByLastNameContainingIgnoreCase(String keyword, Pageable pageable);
 }
