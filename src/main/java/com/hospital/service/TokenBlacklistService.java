@@ -6,10 +6,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Service to manage blacklisted JWT tokens.
+ * Service to manage blacklisted JWT tokens. we use an in-memory
+ * ConcurrentHashMap
  * In a production environment, this should use Redis or a Database with TTL
  * (Time To Live).
- * For this lab, we use an in-memory ConcurrentHashMap.Sa
  */
 @Service
 public class TokenBlacklistService {
