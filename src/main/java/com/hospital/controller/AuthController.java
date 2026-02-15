@@ -5,6 +5,7 @@ import com.hospital.model.DTO.LoginResponse;
 import com.hospital.model.DTO.UserInput;
 import com.hospital.model.DTO.UserLogin;
 import com.hospital.model.DTO.UserResponse;
+import com.hospital.service.TokenBlacklistService;
 import com.hospital.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +35,7 @@ public class AuthController {
         private final AuthenticationManager authenticationManager;
         private final JwtService jwtService;
         private final UserService userService;
-        private final com.hospital.service.TokenBlacklistService tokenBlacklistService;
+        private final TokenBlacklistService tokenBlacklistService;
 
         // Authenticate user (Login)
         @Operation(summary = "Authenticate user", description = "Authenticates a user using username and password")

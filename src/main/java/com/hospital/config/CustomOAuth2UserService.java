@@ -44,8 +44,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     // Create new user
                     User newUser = new User();
                     newUser.setEmail(email);
-                    newUser.setUsername(email); // Use email as username for OAuth users
                     newUser.setFullName(name);
+                    if (name != null) {
+                        String formattedUsername = name.trim().toLowerCase().replace(" ", ".");
+                        newUser.setUsername(formattedUsername);
+                    } else {
+                        newUser.setUsername(email); // Fallback just in case Google name is null
+                    }
                     newUser.setRole(Role.RECEPTIONIST); // Default role as requested
                     newUser.setPassword(""); // No password for OAuth users
                     newUser.setStatus(true);
