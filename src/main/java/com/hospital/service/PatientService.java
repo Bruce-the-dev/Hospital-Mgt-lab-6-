@@ -37,14 +37,17 @@ public class PatientService {
 
     @CacheEvict(value = "patients", key = "#id")
     public PatientResponse updatePatient(Long id, PatientInput updatedData) {
-        Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
+        Patient p = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
         // save() = UPDATE because entity is managed
         PatientMapper.updateEntity(updatedData, p);
         return PatientMapper.toResponse(p);
     }
-@CacheEvict(value = "patients", key = "#id")
+
+    @CacheEvict(value = "patients", key = "#id")
     public void deletePatient(Long id) {
-        Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
+        patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
         patientRepository.deleteById(id);
     }
 
@@ -52,9 +55,7 @@ public class PatientService {
     @Transactional(readOnly = true)
     public PatientResponse getPatientById(Long id) {
         return patientRepository.findById(id).map(PatientMapper::toResponse)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with id " + id)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
     }
 
     @Transactional(readOnly = true)
@@ -64,19 +65,20 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public Page<PatientResponse> searchPatients(String lastName, Character gender,
-                                        LocalDate bornAfter, int number, int size, String sortBy, String direction) {
+            LocalDate bornAfter, int number, int size, String sortBy, String direction) {
 
         Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(number, size, sort);
 
-        Specification<Patient> spec = Specification.where(PatientSpecification.hasLastName(lastName)).and(PatientSpecification.hasGender(gender)).and(PatientSpecification.bornAfter(bornAfter));
+        Specification<Patient> spec = Specification.where(PatientSpecification.hasLastName(lastName))
+                .and(PatientSpecification.hasGender(gender)).and(PatientSpecification.bornAfter(bornAfter));
 
         return patientRepository.findAll(spec, pageable).map(PatientMapper::toResponse);
     }
 
-
     public Page<PatientResponse> getPatientsByPage(int page, int size, String sortBy, String direction) {
-   Pageable pageable = PageRequest.of(page, size, Sort.by(direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC));
-    return patientRepository.findAll(pageable).map(PatientMapper::toResponse);
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC));
+        return patientRepository.findAll(pageable).map(PatientMapper::toResponse);
     }
 }
