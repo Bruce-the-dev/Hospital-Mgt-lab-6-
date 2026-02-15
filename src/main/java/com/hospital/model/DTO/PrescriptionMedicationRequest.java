@@ -18,4 +18,7 @@ public class PrescriptionMedicationRequest {
     @NotBlank(message = "Dosage is required")
     @Size(max = 100)
     private String dosage;
+
+    @NotNull(message = "Quantity is required")
+    private Integer quantity;
 }

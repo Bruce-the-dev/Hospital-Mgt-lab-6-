@@ -21,7 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,14 +32,14 @@ public class PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final AppointmentRepository appointmentRepository;
     private final MedicationRepository medicationRepository;
+    private final InventoryService inventoryService;
 
     @CacheEvict(value = "prescriptions", allEntries = true)
     public Prescription createPrescription(
-            PrescriptionCreateRequest request
-    ) {
+            PrescriptionCreateRequest request) {
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Appointment not found with id " + request.getAppointmentId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Appointment not found with id " + request.getAppointmentId()));
 
         Prescription prescription = new Prescription();
         prescription.setAppointment(appointment);
@@ -49,16 +48,22 @@ public class PrescriptionService {
 
         List<PrescriptionMedication> meds = new ArrayList<>();
 
-
         // bind children
         for (PrescriptionMedicationRequest dto : request.getMedications()) {
+            // Check and deduct stock
+            boolean stockAvailable = inventoryService.deductStock(dto.getMedicationId(), dto.getQuantity());
+            if (!stockAvailable) {
+                throw new com.hospital.exceptions.ResourceNotFoundException(
+                        "Insufficient stock for medication ID: " + dto.getMedicationId());
+            }
+
             Medication medication = medicationRepository.findById(dto.getMedicationId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    "Medication not found with id " + dto.getMedicationId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Medication not found with id " + dto.getMedicationId()));
 
             PrescriptionMedication pm = new PrescriptionMedication();
             pm.setDosage(dto.getDosage());
+            pm.setQuantity(dto.getQuantity());
             pm.setMedication(medication);
             pm.setPrescription(prescription);
 
@@ -73,18 +78,15 @@ public class PrescriptionService {
     @Transactional(readOnly = true)
     public Prescription getPrescriptionById(Long id) {
         return prescriptionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Prescription not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found with id " + id));
     }
 
     @CacheEvict(value = "prescriptions", allEntries = true)
     public Prescription updatePrescription(
             Long prescriptionId,
-            PrescriptionUpdateRequest request
-    ) {
+            PrescriptionUpdateRequest request) {
         Prescription prescription = prescriptionRepository.findById(prescriptionId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Prescription not found with id " + prescriptionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found with id " + prescriptionId));
 
         if (request.getIssuedDate() != null) {
             prescription.setIssuedDate(request.getIssuedDate());
@@ -100,12 +102,11 @@ public class PrescriptionService {
             for (PrescriptionMedicationRequest mr : request.getMedications()) {
                 PrescriptionMedication pm = new PrescriptionMedication();
                 pm.setDosage(mr.getDosage());
+                pm.setQuantity(mr.getQuantity());
                 pm.setMedication(
                         medicationRepository.findById(mr.getMedicationId())
-                                .orElseThrow(() ->
-                                        new ResourceNotFoundException(
-                                                "Medication not found with id " + mr.getMedicationId()))
-                );
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                        "Medication not found with id " + mr.getMedicationId())));
                 pm.setPrescription(prescription);
                 prescription.getPrescriptionMedications().add(pm);
             }
@@ -117,8 +118,7 @@ public class PrescriptionService {
     @CacheEvict(value = "prescriptions", allEntries = true)
     public void deletePrescription(Long prescriptionId) {
         Prescription prescription = prescriptionRepository.findById(prescriptionId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Prescription not found with id " + prescriptionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found with id " + prescriptionId));
 
         prescriptionRepository.delete(prescription);
     }
@@ -126,7 +126,8 @@ public class PrescriptionService {
     @Transactional(readOnly = true)
     public List<PrescriptionReportDTO> getAllPrescriptionReports(int size, int page, String sortBy, String direction) {
 
-        Pageable pageable = PageRequest.of(page, size, direction.equalsIgnoreCase("desc")? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         return prescriptionRepository.findAllPrescriptionReports(pageable);
     }
 
@@ -139,6 +140,5 @@ public class PrescriptionService {
     public List<PrescriptionReportDTO> getReportsByDoctor(Long doctorId) {
         return prescriptionRepository.findReportsByDoctorId(doctorId);
     }
-
 
 }

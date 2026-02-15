@@ -16,8 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;;
 
 @RestController
 @RequestMapping("/api/feedbacks")
@@ -27,17 +26,13 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    @Operation(
-            summary = "Create feedback",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Feedback created"),
-                    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
-            }
-    )
+    @Operation(summary = "Create feedback", responses = {
+            @ApiResponse(responseCode = "201", description = "Feedback created"),
+            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<FeedbackResponseDTO> create(
-            @Valid @RequestBody FeedbackRequestDTO dto
-    ) {
+            @Valid @RequestBody FeedbackRequestDTO dto) {
         return new ResponseEntity<>(feedbackService.create(dto), HttpStatus.CREATED);
     }
 
@@ -51,8 +46,7 @@ public class FeedbackController {
     @Operation(summary = "Get all feedback (paginated)")
     @GetMapping
     public ResponseEntity<Page<FeedbackResponseDTO>> getAll(
-            @ParameterObject Pageable pageable
-    ) {
+            @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(feedbackService.getAll(pageable));
     }
 
@@ -60,8 +54,7 @@ public class FeedbackController {
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<Page<FeedbackResponseDTO>> getByDoctor(
             @PathVariable Long doctorId,
-            @ParameterObject Pageable pageable
-    ) {
+            @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(feedbackService.getByDoctor(doctorId, pageable));
     }
 
@@ -69,8 +62,7 @@ public class FeedbackController {
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<Page<FeedbackResponseDTO>> getByPatient(
             @PathVariable Long patientId,
-            @ParameterObject Pageable pageable
-    ) {
+            @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(feedbackService.getByPatient(patientId, pageable));
     }
 
@@ -78,8 +70,7 @@ public class FeedbackController {
     @PutMapping("/{id}")
     public ResponseEntity<FeedbackResponseDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody FeedbackRequestDTO dto
-    ) {
+            @Valid @RequestBody FeedbackRequestDTO dto) {
         return ResponseEntity.ok(feedbackService.update(id, dto));
     }
 

@@ -31,14 +31,12 @@ public class PrescriptionGraphQLController {
             Integer size,
             Integer page,
             String sortBy,
-            String direction
-    ) {
+            String direction) {
         return prescriptionService.getAllPrescriptionReports(
                 size == null ? 10 : size,
                 page == null ? 0 : page,
                 sortBy == null ? "issuedDate" : sortBy,
-                direction == null ? "asc" : direction
-        );
+                direction == null ? "asc" : direction);
     }
 
     @QueryMapping

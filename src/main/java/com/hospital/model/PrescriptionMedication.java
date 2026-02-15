@@ -18,6 +18,8 @@ public class PrescriptionMedication {
 
     private String dosage;
 
+    private int quantity;
+
     @ManyToOne
     @JoinColumn(name = "prescription_id")
     private Prescription prescription;
@@ -26,4 +28,3 @@ public class PrescriptionMedication {
     @JoinColumn(name = "medication_id")
     private Medication medication;
 }
-
