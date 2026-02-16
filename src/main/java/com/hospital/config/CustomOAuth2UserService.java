@@ -24,24 +24,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        // Did you know? This delegates to the default Spring implementation to get the
-        // user raw info from Google!
+
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(userRequest);
 
-        // Extract key details
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
 
-        // EDUCATIONAL: Here we persist the user.
-        // If they don't exist, we create them. If they do, we update them.
         User user = userRepository.findByEmail(email)
                 .map(existingUser -> {
-                    // Update existing user details if needed
+
                     existingUser.setFullName(name);
                     return userRepository.save(existingUser);
                 })
                 .orElseGet(() -> {
-                    // Create new user
                     User newUser = new User();
                     newUser.setEmail(email);
                     newUser.setFullName(name);
@@ -51,23 +46,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     } else {
                         newUser.setUsername(email); // Fallback just in case Google name is null
                     }
-                    newUser.setRole(Role.RECEPTIONIST); // Default role as requested
-                    newUser.setPassword(""); // No password for OAuth users
+                    newUser.setRole(Role.RECEPTIONIST);
+                    newUser.setPassword("");
                     newUser.setStatus(true);
                     return userRepository.save(newUser);
                 });
 
-        // Copy existing authorities (scopes + OAUTH2_USER)
         Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oauthUser.getAuthorities());
 
-        // Add our app's role authority so Spring Security knows who they are
         mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
-        // Return a new user with your custom authorities
         return new DefaultOAuth2User(
                 mappedAuthorities,
                 oauthUser.getAttributes(),
-                "sub" // Google's user id key is usually 'sub' (Subject)
+                "sub"
         );
     }
 }
