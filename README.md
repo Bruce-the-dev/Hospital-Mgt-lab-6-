@@ -40,6 +40,12 @@ Frequently accessed appointment data and reports are cached using Spring Cache
 
 Reduces repeated DB queries and improves response times
 
+Transaction Management
+
+@Transactional is applied to all service methods.
+
+Rollback Strategy: Creating a prescription involves checking inventory levels. If stock is insufficient, a RuntimeException is thrown, triggering a rollback of the entire transaction (no prescription is created, and partial inventory deduct-ions are reverted).
+
 Validation
 
 Input DTOs include @NotBlank, @NotNull, @Email, @Past annotations

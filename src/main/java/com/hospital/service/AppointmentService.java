@@ -22,8 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -48,7 +46,6 @@ public class AppointmentService {
         return AppointmentMapper.toResponse(saved);
     }
 
-
     @Cacheable(value = "appointments", key = "#id")
     @Transactional(readOnly = true)
     public AppointmentResponse getById(Long id) {
@@ -56,7 +53,6 @@ public class AppointmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         return AppointmentMapper.toResponse(appointment);
     }
-
 
     @Transactional(readOnly = true)
     public List<AppointmentResponse> searchByStatus(Status status) {
@@ -73,9 +69,9 @@ public class AppointmentService {
 
     @Transactional(readOnly = true)
     public List<AppointmentResponse> sortByDate() {
-        List<Appointment> list = appointmentRepository.findAll();
-        list.sort(Comparator.comparing(Appointment::getAppointmentDate));
-        return list.stream().map(AppointmentMapper::toResponse).toList();
+        return appointmentRepository.findAll(Sort.by("appointmentDate")).stream()
+                .map(AppointmentMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -83,10 +79,11 @@ public class AppointmentService {
     public List<FullAppointmentReportDTO> getAppointmentsWithoutPrescription() {
         return appointmentRepository.findAppointmentsWithoutPrescription();
     }
+
     @Transactional(readOnly = true)
     @Cacheable(value = "appointmentReports", key = "'doctor_'+#doctorId")
     public List<AppointmentReportDTO> getAppointmentsByDoctor(Long doctorId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size,Sort.by("AppointmentDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("AppointmentDate").descending());
         return appointmentRepository.findAppointmentsByDoctor(doctorId, pageable);
     }
 
@@ -97,24 +94,24 @@ public class AppointmentService {
         return appointmentRepository.findFullAppointmentReport(pageable);
     }
 
-
     @Transactional(readOnly = true)
     @Cacheable(value = "appointmentReports", key = "'patient_'+#patientId")
     public List<AppointmentReportDTO> getAppointmentsByPatient(Long patientId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentDate").descending());
-        return appointmentRepository.findAppointmentsByPatient(patientId,pageable);
+        return appointmentRepository.findAppointmentsByPatient(patientId, pageable);
     }
+
     @CachePut(value = "appointments", key = "#id")
     public AppointmentResponse updateAppointment(Long id, AppointmentInput input) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-        Patient patient = input.getPatientId() == null ? null :
-                patientRepository.findById(input.getPatientId())
+        Patient patient = input.getPatientId() == null ? null
+                : patientRepository.findById(input.getPatientId())
                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        Doctor doctor = input.getDoctorId() == null ? null :
-                doctorRepository.findById(input.getDoctorId())
+        Doctor doctor = input.getDoctorId() == null ? null
+                : doctorRepository.findById(input.getDoctorId())
                         .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
 
         AppointmentMapper.updateEntity(appointment, input, patient, doctor);
@@ -123,4 +120,3 @@ public class AppointmentService {
     }
 
 }
-

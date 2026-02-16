@@ -10,11 +10,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "users",
-        indexes = {
-                @Index(name = "idx_users_username", columnList = "username"),
-                @Index(name = "idx_users_role", columnList = "role"),
-                @Index(name = "idx_users_status", columnList = "status")})
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username"),
+        @Index(name = "idx_users_role", columnList = "role"),
+        @Index(name = "idx_users_status", columnList = "status") })
 
 public class User {
 
@@ -48,5 +47,3 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 }
-
-
