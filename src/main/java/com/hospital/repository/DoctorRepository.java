@@ -11,6 +11,5 @@ import java.util.List;
 public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecificationExecutor<Doctor> {
 
   List<Doctor> findByDepartmentDepartmentId(Long departmentId);
-  List<Doctor> findByDepartmentDepartmentId(Long departmentId);
 
 }
