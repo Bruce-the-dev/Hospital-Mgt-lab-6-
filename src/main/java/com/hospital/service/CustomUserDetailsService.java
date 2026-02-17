@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService, OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomUserDetailsService implements UserDetailsService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -41,29 +41,5 @@ public class CustomUserDetailsService implements UserDetailsService, OAuth2UserS
                 .build();
     }
 
-    /**
-     * @param userRequest
-     * @return
-     * @throws OAuth2AuthenticationException
-     */
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-        OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
-
-        String email = oAuth2User.getAttributes().get("email").toString();
-        String fullname = oAuth2User.getAttributes().get("name").toString();
-
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setFullName(fullname);
-            newUser.setUsername(email);
-            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            newUser.setRole(Role.RECEPTIONIST);
-            return userRepository.save(newUser);
-        });
-        Set<GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-        return new DefaultOAuth2User(authorities, oAuth2User.getAttributes(), "email");
-    }
 }
