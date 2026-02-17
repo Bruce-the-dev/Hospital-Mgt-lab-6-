@@ -3,6 +3,10 @@ package com.hospital.controller;
 import com.hospital.model.DTO.DepartmentInput;
 import com.hospital.model.DTO.DepartmentResponse;
 import com.hospital.service.DepartmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +19,17 @@ import java.util.List;
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Department", description = "Department management")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
 
+    @Operation(summary = "Create a new Department", description = "Adds a new department with name and location")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Department created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "Server error")
+    })
     @PostMapping
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Valid @RequestBody DepartmentInput input) {
