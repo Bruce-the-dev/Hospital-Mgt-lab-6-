@@ -3,6 +3,10 @@ package com.hospital.controller;
 import com.hospital.model.DTO.DoctorInput;
 import com.hospital.model.DTO.DoctorResponse;
 import com.hospital.service.DoctorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +20,17 @@ import java.util.List;
 @RequestMapping("/api/doctors")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Doctors", description = "Doctor management and search")
 public class DoctorController {
 
     private final DoctorService doctorService;
 
+    @Operation(summary = "Create a new Doctor entry", description = "Adds a new doctor with their info and department")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Department created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "Server error")
+    })
     @PostMapping
     @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<DoctorResponse> createDoctor(
