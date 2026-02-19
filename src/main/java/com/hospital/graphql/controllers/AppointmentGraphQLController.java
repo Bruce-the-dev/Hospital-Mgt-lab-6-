@@ -11,6 +11,7 @@ import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Controller
 @RequiredArgsConstructor
@@ -45,7 +46,7 @@ public class AppointmentGraphQLController {
     }
 
     @QueryMapping
-    public List<FullAppointmentReportDTO> getFullAppointmentReport(@Argument int page, @Argument int size) {
+    public CompletableFuture<List<FullAppointmentReportDTO>> getFullAppointmentReport(@Argument int page, @Argument int size) {
         return appointmentService.getFullAppointmentReport(page, size);
     }
 

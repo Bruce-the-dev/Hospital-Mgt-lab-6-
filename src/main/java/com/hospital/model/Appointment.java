@@ -7,7 +7,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "appointments", indexes = {
-        @Index(name ="idx_appointment_date", columnList ="appointmentDate" )
+        @Index(name ="idx_appointment_date", columnList ="appointmentDate" ),
+        @Index(name ="idx_appointment_doctor", columnList ="doctor_id" ),
+        @Index(name ="idx_appointment_patient", columnList ="patient_id" )
 })
 @Getter
 @Setter

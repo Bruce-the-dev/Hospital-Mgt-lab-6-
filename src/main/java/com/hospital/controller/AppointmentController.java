@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -102,15 +103,15 @@ public class AppointmentController {
     // Full appointment report (admin view)
     @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
     @GetMapping("/reports/full")
-    public ResponseEntity<List<FullAppointmentReportDTO>> getFullAppointmentReport(
+    public CompletableFuture<ResponseEntity<List<FullAppointmentReportDTO>>> getFullAppointmentReport(
             @Parameter(description = "Page number (0-based)", example = "0")
             @RequestParam(defaultValue = "0") int page,
 
             @Parameter(description = "Page size", example = "10")
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(
-                appointmentService.getFullAppointmentReport(size, page)
-        );
+        if (size > 500) size = 500;
+        return appointmentService.getFullAppointmentReport(page,size).thenApply(ResponseEntity::ok);
+
     }
 
     // Appointments without prescription
