@@ -14,5 +14,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String username);
 
-    Page<User> findByRoleAndStatus(Role role, boolean status, Pageable pageable);
 }

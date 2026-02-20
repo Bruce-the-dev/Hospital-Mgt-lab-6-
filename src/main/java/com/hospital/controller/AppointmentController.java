@@ -101,7 +101,7 @@ public class AppointmentController {
             @Parameter(description = "Page size", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(
-                appointmentService.getFullAppointmentReport(size, page)
+                appointmentService.getFullAppointmentReport(page, size)
         );
     }
 

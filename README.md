@@ -1,89 +1,85 @@
 # 🏥 Hospital Management System
 
-## 📖 Overview
+## Overview
 
+A comprehensive hospital management system to manage patients, doctors, departments, and appointments. This system leverages Spring Boot, JPA, caching, validation, and OpenAPI documentation to provide efficient CRUD operations and detailed reports.
+
+---
 
 ## Features Implemented
 
-Patient, Doctor, Department Management
-CRUD operations via JPA repositories with caching support.
+### Patient, Doctor, and Department Management
 
-Appointment Management
+* CRUD operations via JPA repositories.
+* Caching support to reduce database hits.
 
-Create, read, update, delete appointments
+### Appointment Management
 
-Track appointment status (SCHEDULED, COMPLETED, CANCELLED)
+* Create, read, update, and delete appointments.
+* Track appointment status: `SCHEDULED`, `COMPLETED`, `CANCELLED`.
+* Fetch appointments by patient or doctor.
+* Generate detailed appointment reports including patient, doctor, and department info.
+* Identify appointments without prescriptions.
 
-Fetch appointments by patient or by doctor
+### DTO-Based Responses
 
-Generate full appointment reports including patient, doctor, and department info
+* `AppointmentInputDTO` and `AppointmentResponseDTO` for basic CRUD operations.
+* `AppointmentReportDTO` for patient/doctor-specific reports.
+* `FullAppointmentReportDTO` for comprehensive reports.
 
-Identify appointments without prescriptions
+### Pagination & Sorting
 
-DTO-Based Responses
+* All report endpoints support `page` and `size` parameters.
+* Default sorting by appointment date in descending order.
 
-AppointmentInputDTO and AppointmentResponseDTO for basic CRUD
+### Caching
 
-AppointmentReportDTO for patient/doctor reports
+* Frequently accessed appointment data and reports are cached using Spring Cache.
+* Reduces repeated DB queries and improves response times.
 
-FullAppointmentReportDTO for comprehensive reports
+### Transaction Management
 
-Pagination & Sorting
+* `@Transactional` applied to all service methods.
+* **Rollback Strategy:** Creating a prescription checks inventory levels. If stock is insufficient, a `RuntimeException` triggers rollback of the entire transaction (no partial inventory deductions).
 
-All report endpoints support page/size parameters
+### Validation
 
-Sort by appointment date descending by default
+* Input DTOs include annotations: `@NotBlank`, `@NotNull`, `@Email`, `@Past`.
+* Global exception handler returns standardized validation error responses.
 
-Caching
+### Swagger/OpenAPI Documentation
 
-Frequently accessed appointment data and reports are cached using Spring Cache
-
-Reduces repeated DB queries and improves response times
-
-Transaction Management
-
-@Transactional is applied to all service methods.
-
-Rollback Strategy: Creating a prescription involves checking inventory levels. If stock is insufficient, a RuntimeException is thrown, triggering a rollback of the entire transaction (no prescription is created, and partial inventory deduct-ions are reverted).
-
-Validation
-
-Input DTOs include @NotBlank, @NotNull, @Email, @Past annotations
-
-Global exception handler returns standardized validation errors
-
-Swagger/OpenAPI Documentation
-
-All endpoints are annotated with @Operation and @Parameter for interactive documentation
-
-Accessible via /swagger-ui.html
-
-## Example Endpoints
-Endpoint	Method	Description
-/api/appointments/patient/{id}	GET	Get paginated appointments for a patient
-/api/appointments/doctor/{id}	GET	Get paginated appointments for a doctor
-/api/appointments/reports/full	GET	Get full appointment report (patient + doctor + department)
-/api/appointments	POST	Create a new appointment
-/api/appointments/{id}	PUT	Update an existing appointment
-/api/appointments/{id}	DELETE	Delete an appointment
-
-### Technologies Used
-
-
-Spring Data JPA with Hibernate
-PostgreSQL
-Spring Cache (Caffeine/ConcurrentMap)
-Validation API (javax.validation)
-Springdoc OpenAPI / Swagger UI
-
-### Notes
-
-DTOs are used for separation of concerns, avoiding exposing JPA entities directly.
-
-AppointmentReportDTO and FullAppointmentReportDTO are read-only projections optimized for reporting.
-
-Caching uses appointment ID and report keys, ensuring minimal database hits for repeated queries.
-
-Specification / dynamic queries are not used in Appointment since filtering is limited to status.
+* All endpoints are annotated with `@Operation` and `@Parameter`.
+* Interactive API documentation accessible at `/swagger-ui.html`.
 
 ---
+
+##  Example Endpoints
+
+| Endpoint                         | Method | Description                                                 |
+|----------------------------------|--------|-------------------------------------------------------------|
+| `/api/appointments/patient/{id}` | GET    | Get paginated appointments for a patient                    |
+| `/api/appointments/doctor/{id}`  | GET    | Get paginated appointments for a doctor                     |
+| `/api/appointments/reports/full` | GET    | Get full appointment report (patient + doctor + department) |
+| `/api/appointments`              | POST   | Create a new appointment                                    |
+| `/api/appointments/{id}`         | PUT    | Update an existing appointment                              |
+| `/api/appointments/{id}`         | DELETE | Delete an appointment                                       |
+
+---
+
+## Technologies Used
+
+* Spring Boot with Spring Data JPA and Hibernate
+* PostgreSQL
+* Spring Cache (Caffeine/ConcurrentMap)
+* Validation API (`javax.validation`)
+* Springdoc OpenAPI / Swagger UI
+
+---
+
+## Notes
+
+* DTOs are used to separate concerns and prevent exposing JPA entities directly.
+* `AppointmentReportDTO` and `FullAppointmentReportDTO` are read-only projections optimized for reporting.
+* Caching keys are based on appointment ID and report identifiers to minimize database hits for repeated queries.
+* Specification or dynamic queries are not used for appointments since filtering is limited to status.

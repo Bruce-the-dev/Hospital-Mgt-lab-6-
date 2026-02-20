@@ -12,7 +12,4 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecif
 
   List<Doctor> findByDepartmentDepartmentId(Long departmentId);
 
-  // Page<Doctor>
-  // findByLastNameContainingIgnoreCaseOrSpecializationContainingIgnoreCase(String
-  // name, String specialization, Pageable pageable);
 }

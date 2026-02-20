@@ -9,6 +9,7 @@ import com.hospital.repository.PatientRepository;
 import com.hospital.specification.PatientSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +36,7 @@ public class PatientService {
         return PatientMapper.toResponse(saved);
     }
 
-    @CacheEvict(value = "patients", key = "#id")
+    @CachePut(value = "patients", key = "#id")
     public PatientResponse updatePatient(Long id, PatientInput updatedData) {
         Patient p = patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
         // save() = UPDATE because entity is managed
