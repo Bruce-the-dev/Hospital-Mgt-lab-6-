@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(userRequest);
 
         String email = oauthUser.getAttribute("email");
+
+        if (email == null) {
+            throw new OAuth2AuthenticationException("Email not found from OAuth2 provider");
+        }
+
         String name = oauthUser.getAttribute("name");
 
         User user = userRepository.findByEmail(email)
                 .map(existingUser -> {
-
                     existingUser.setFullName(name);
                     return userRepository.save(existingUser);
                 })
@@ -40,26 +45,27 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     User newUser = new User();
                     newUser.setEmail(email);
                     newUser.setFullName(name);
-                    if (name != null) {
-                        String formattedUsername = name.trim().toLowerCase().replace(" ", ".");
-                        newUser.setUsername(formattedUsername);
-                    } else {
-                        newUser.setUsername(email); // Fallback just in case Google name is null
-                    }
+                    newUser.setUsername(email.split("@")[0]);
                     newUser.setRole(Role.RECEPTIONIST);
                     newUser.setPassword("");
                     newUser.setStatus(true);
                     return userRepository.save(newUser);
                 });
 
-        Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oauthUser.getAuthorities());
+        Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+        mappedAuthorities.add(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
 
-        mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        String userNameAttributeName = userRequest.getClientRegistration()
+                .getProviderDetails()
+                .getUserInfoEndpoint()
+                .getUserNameAttributeName();
 
         return new DefaultOAuth2User(
                 mappedAuthorities,
                 oauthUser.getAttributes(),
-                "sub"
+                userNameAttributeName
         );
     }
 }
