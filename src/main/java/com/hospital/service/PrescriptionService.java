@@ -46,20 +46,27 @@ public class PrescriptionService {
         prescription.setIssuedDate(request.getIssuedDate());
         prescription.setNotes(request.getNotes());
 
+        List<Long> medIds = request.getMedications().stream()
+                .map(PrescriptionMedicationRequest::getMedicationId)
+                .toList();
+
+        List<Medication> allMeds = medicationRepository.findAllById(medIds);
+        java.util.Map<Long, Medication> medMap = allMeds.stream()
+                .collect(java.util.stream.Collectors.toMap(Medication::getMedicationId, m -> m));
+
         List<PrescriptionMedication> meds = new ArrayList<>();
 
-        // bind children
         for (PrescriptionMedicationRequest dto : request.getMedications()) {
-            // Check and deduct stock
             boolean stockAvailable = inventoryService.deductStock(dto.getMedicationId(), dto.getQuantity());
             if (!stockAvailable) {
                 throw new com.hospital.exceptions.ResourceNotFoundException(
                         "Insufficient stock for medication ID: " + dto.getMedicationId());
             }
 
-            Medication medication = medicationRepository.findById(dto.getMedicationId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Medication not found with id " + dto.getMedicationId()));
+            Medication medication = medMap.get(dto.getMedicationId());
+            if (medication == null) {
+                throw new ResourceNotFoundException("Medication not found with id " + dto.getMedicationId());
+            }
 
             PrescriptionMedication pm = new PrescriptionMedication();
             pm.setDosage(dto.getDosage());

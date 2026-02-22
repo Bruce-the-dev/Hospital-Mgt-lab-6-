@@ -25,8 +25,10 @@ public class DoctorGraphQLController {
     }
 
     @QueryMapping
-    public List<DoctorResponse> getAllDoctors() {
-        return doctorService.getAllDoctors();
+    public org.springframework.data.domain.Page<DoctorResponse> getAllDoctors(
+            @org.springframework.graphql.data.method.annotation.Argument Integer page,
+            @org.springframework.graphql.data.method.annotation.Argument Integer size) {
+        return doctorService.getAllDoctors(page == null ? 0 : page, size == null ? 10 : size);
     }
 
     @QueryMapping

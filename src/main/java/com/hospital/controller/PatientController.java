@@ -53,11 +53,12 @@ public class PatientController {
     @Operation(summary = "Get all patients")
     @ApiResponse(responseCode = "200", description = "Patients retrieved successfully")
     @GetMapping
-    public ResponseEntity<List<PatientResponse>> getAll() {
+    public ResponseEntity<Page<PatientResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(patientService.getAllPatients());
+        return ResponseEntity.ok(patientService.getAllPatients(page, size));
     }
-
 
     @Operation(summary = "Update patient")
     @ApiResponses({
@@ -74,7 +75,6 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
-
     @Operation(summary = "Delete patient")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Patient deleted successfully"),
@@ -87,7 +87,7 @@ public class PatientController {
         return ResponseEntity.noContent().build();
     }
 
-//search+ pagination
+    // search+ pagination
     @Operation(summary = "Search patients with filters")
     @ApiResponse(responseCode = "200", description = "Patients retrieved successfully")
     @GetMapping("/search")
@@ -101,8 +101,7 @@ public class PatientController {
             @RequestParam(defaultValue = "asc") String direction) {
 
         Page<PatientResponse> result = patientService.searchPatients(
-                lastName, gender, bornAfter, page, size, sortBy, direction
-        );
+                lastName, gender, bornAfter, page, size, sortBy, direction);
 
         return ResponseEntity.ok(result);
     }

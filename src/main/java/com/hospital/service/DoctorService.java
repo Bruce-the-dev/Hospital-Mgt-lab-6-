@@ -39,8 +39,8 @@ public class DoctorService {
 
         Doctor doctor = DoctorMapper.toEntity(input, department);
 
-        Doctor saved = doctorRepository.save(doctor); // This works  but strictly speaking, it’s redundant.
-//        Because: doctor is already managed, Transaction commit → flush
+        Doctor saved = doctorRepository.save(doctor); // This works but strictly speaking, it’s redundant.
+        // Because: doctor is already managed, Transaction commit → flush
 
         return DoctorMapper.toResponse(saved);
     }
@@ -52,13 +52,13 @@ public class DoctorService {
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id " + id));
         return DoctorMapper.toResponse(doctor);
     }
+
     @Transactional(readOnly = true)
-    public List<DoctorResponse> getAllDoctors() {
-        return doctorRepository.findAll()
-                .stream()
-                .map(DoctorMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<DoctorResponse> getAllDoctors(int page, int size) {
+        return doctorRepository.findAll(PageRequest.of(page, size))
+                .map(DoctorMapper::toResponse);
     }
+
     @Transactional(readOnly = true)
     public List<DoctorResponse> getDoctorsByDepartment(Long departmentId) {
         return doctorRepository.findByDepartmentDepartmentId(departmentId)
@@ -66,6 +66,7 @@ public class DoctorService {
                 .map(DoctorMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
     @CacheEvict(value = "doctors", key = "#id")
     public DoctorResponse updateDoctor(Long id, DoctorInput input) {
         Doctor doctor = doctorRepository.findById(id)
@@ -81,21 +82,22 @@ public class DoctorService {
         DoctorMapper.updateEntity(input, doctor, department);
         Doctor updated = doctorRepository.save(doctor);
         return DoctorMapper.toResponse(updated);
-}
+    }
+
     @CacheEvict(value = "doctors", key = "#id")
     public void deleteDoctor(Long id) {
-      Doctor doc = doctorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id " + id));
+        Doctor doc = doctorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id " + id));
 
         doctorRepository.delete(doc);
     }
 
     @Transactional(readOnly = true)
     public Page<DoctorResponse> searchDoctors(
-            String name, String specialization ,int page, int size, String sortBy, String direction) {
+            String name, String specialization, int page, int size, String sortBy, String direction) {
 
         Pageable pageable = PageRequest.of(page, size,
-                direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
-        );
+                direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
 
         Specification<Doctor> spec = Specification.where((Specification<Doctor>) null);
 
@@ -107,7 +109,7 @@ public class DoctorService {
             spec = spec.and(DoctorSpecification.hasSpecialization(specialization));
         }
 
-        return doctorRepository.findAll(spec,pageable).map(DoctorMapper::toResponse);
+        return doctorRepository.findAll(spec, pageable).map(DoctorMapper::toResponse);
     }
 
 }

@@ -30,8 +30,10 @@ public class DoctorController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<DoctorResponse>> getAllDoctors() {
-        List<DoctorResponse> doctors = doctorService.getAllDoctors();
+    public ResponseEntity<org.springframework.data.domain.Page<DoctorResponse>> getAllDoctors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        org.springframework.data.domain.Page<DoctorResponse> doctors = doctorService.getAllDoctors(page, size);
         return ResponseEntity.ok(doctors);
     }
 
@@ -59,7 +61,6 @@ public class DoctorController {
         return ResponseEntity.ok(updated);
     }
 
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
@@ -67,4 +68,3 @@ public class DoctorController {
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -37,15 +37,18 @@ public class FeedbackService {
     public FeedbackResponseDTO create(FeedbackRequestDTO dto) {
         Feedback feedback = FeedbackMapper.toEntity(dto);
 
-        feedback.setPatient(
-                patientRepository.findById(dto.getPatientId())
-                        .orElseThrow(() -> new RuntimeException("Patient not found"))
-        );
+        java.util.concurrent.CompletableFuture<com.hospital.model.Patient> patientFuture = java.util.concurrent.CompletableFuture
+                .supplyAsync(() -> patientRepository.findById(dto.getPatientId())
+                        .orElseThrow(() -> new RuntimeException("Patient not found")));
 
-        feedback.setDoctor(
-                doctorRepository.findById(dto.getDoctorId())
-                        .orElseThrow(() -> new RuntimeException("Doctor not found"))
-        );
+        java.util.concurrent.CompletableFuture<com.hospital.model.Doctor> doctorFuture = java.util.concurrent.CompletableFuture
+                .supplyAsync(() -> doctorRepository.findById(dto.getDoctorId())
+                        .orElseThrow(() -> new RuntimeException("Doctor not found")));
+
+        java.util.concurrent.CompletableFuture.allOf(patientFuture, doctorFuture).join();
+
+        feedback.setPatient(patientFuture.join());
+        feedback.setDoctor(doctorFuture.join());
 
         return FeedbackMapper.toDto(feedbackRepository.save(feedback));
     }
@@ -54,7 +57,6 @@ public class FeedbackService {
     public void delete(Long id) {
         feedbackRepository.deleteById(id);
     }
-
 
     @Transactional(readOnly = true)
     public Page<FeedbackResponseDTO> getAll(Pageable pageable) {
@@ -77,27 +79,24 @@ public class FeedbackService {
     }
 
     @CacheEvict()
-    public FeedbackResponseDTO update(Long id,  FeedbackRequestDTO dto) {
-        Feedback feedback = feedbackRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("No feedback found with id " + id)
-        );
+    public FeedbackResponseDTO update(Long id, FeedbackRequestDTO dto) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No feedback found with id " + id));
         feedback.setPatient(
                 patientRepository.findById(dto.getPatientId())
-                        .orElseThrow(() -> new RuntimeException("Patient not found"))
-        );
+                        .orElseThrow(() -> new RuntimeException("Patient not found")));
 
         feedback.setDoctor(
                 doctorRepository.findById(dto.getDoctorId())
-                        .orElseThrow(() -> new RuntimeException("Doctor not found"))
-        );
+                        .orElseThrow(() -> new RuntimeException("Doctor not found")));
         if (dto.getComment() != null) {
             feedback.setComment(dto.getComment());
         }
-        if (dto.getRating()>=0){
+        if (dto.getRating() >= 0) {
             feedback.setRating(dto.getRating());
         }
 
-// Hibernate will flush changes automatically at transaction commit
-        return  FeedbackMapper.toDto(feedback);
+        // Hibernate will flush changes automatically at transaction commit
+        return FeedbackMapper.toDto(feedback);
     }
 }

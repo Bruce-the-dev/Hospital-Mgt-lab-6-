@@ -59,8 +59,8 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
-    public List<PatientResponse> getAllPatients() {
-        return patientRepository.findAll().stream().map(PatientMapper::toResponse).toList();
+    public Page<PatientResponse> getAllPatients(int page, int size) {
+        return patientRepository.findAll(PageRequest.of(page, size)).map(PatientMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
