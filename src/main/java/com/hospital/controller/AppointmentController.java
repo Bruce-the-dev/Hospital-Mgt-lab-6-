@@ -19,122 +19,102 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-
 @RestController
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
 @Tag(name = "Appointments", description = "Appointment management and reports")
 public class AppointmentController {
 
-    private final AppointmentService appointmentService;
+        private final AppointmentService appointmentService;
 
+        @PostMapping
+        @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+        public ResponseEntity<AppointmentResponse> createAppointment(
+                        @Valid @RequestBody AppointmentInput appointment) {
+                AppointmentResponse saved = appointmentService.addAppointment(appointment);
+                return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
-    public ResponseEntity<AppointmentResponse> createAppointment(
-            @Valid @RequestBody AppointmentInput appointment
-    ) {
-        AppointmentResponse saved = appointmentService.addAppointment(appointment);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
-    }
+        @GetMapping("/{id}")
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
+                return ResponseEntity.ok(appointmentService.getById(id));
+        }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
-        return ResponseEntity.ok(appointmentService.getById(id));
-    }
+        @PutMapping("/{id}")
+        @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST')")
+        public ResponseEntity<AppointmentResponse> updateAppointment(
+                        @PathVariable Long id,
+                        @Valid @RequestBody AppointmentInput appointment) {
+                return ResponseEntity.ok(
+                                appointmentService.updateAppointment(id, appointment));
+        }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST')")
-    public ResponseEntity<AppointmentResponse> updateAppointment(
-            @PathVariable Long id,
-            @Valid @RequestBody AppointmentInput appointment
-    ) {
-        return ResponseEntity.ok(
-                appointmentService.updateAppointment(id, appointment)
-        );
-    }
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST')")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void deleteAppointment(@PathVariable Long id) {
+                appointmentService.deleteAppointment(id);
+        }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAppointment(@PathVariable Long id) {
-        appointmentService.deleteAppointment(id);
-    }
+        // Appointments for a specific patient
+        @Operation(summary = "Get appointments for a patient", description = "Returns paginated appointment history for a given patient")
+        @GetMapping("/patient/{patientId}")
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<List<AppointmentReportDTO>> getAppointmentsByPatient(
+                        @Parameter(description = "Patient ID", example = "1") @PathVariable Long patientId,
+                        @Parameter(description = "Page number (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+                        @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {
+                return ResponseEntity.ok(
+                                appointmentService.getAppointmentsByPatient(patientId, page, size));
+        }
 
+        // Appointments for a specific doctor
+        @GetMapping("/doctor/{doctorId}")
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<List<AppointmentReportDTO>> getAppointmentsByDoctor(
+                        @Parameter(description = "Doctor's ID", example = "1") @PathVariable Long doctorId,
+                        @Parameter(description = "Page number (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
 
-    // Appointments for a specific patient
-    @Operation(
-            summary = "Get appointments for a patient",
-            description = "Returns paginated appointment history for a given patient"
-    )
-    @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<List<AppointmentReportDTO>> getAppointmentsByPatient(
-            @Parameter(description = "Patient ID", example = "1")
-            @PathVariable Long patientId,
-            @Parameter(description = "Page number (0-based)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByPatient(patientId, page, size)
-        );
-    }
+                        @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {
+                return ResponseEntity.ok(
+                                appointmentService.getAppointmentsByDoctor(doctorId, page, size));
+        }
 
-    // Appointments for a specific doctor
-    @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<List<AppointmentReportDTO>> getAppointmentsByDoctor(
-            @Parameter(description = "Doctor's ID", example = "1")
-            @PathVariable Long doctorId,
-            @Parameter(description = "Page number (0-based)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
+        // Full appointment report (admin view)
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        @GetMapping("/reports/full")
+        public CompletableFuture<ResponseEntity<List<FullAppointmentReportDTO>>> getFullAppointmentReport(
+                        @Parameter(description = "Page number (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
 
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByDoctor(doctorId, page, size)
-        );
-    }
+                        @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {
+                if (size > 500)
+                        size = 500;
+                return appointmentService.getFullAppointmentReport(page, size).thenApply(ResponseEntity::ok);
 
-    // Full appointment report (admin view)
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    @GetMapping("/reports/full")
-    public CompletableFuture<ResponseEntity<List<FullAppointmentReportDTO>>> getFullAppointmentReport(
-            @Parameter(description = "Page number (0-based)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
+        }
 
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "10") int size) {
-        if (size > 500) size = 500;
-        return appointmentService.getFullAppointmentReport(page,size).thenApply(ResponseEntity::ok);
+        // Appointments without prescription
+        @GetMapping("/reports/without-prescription")
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<List<FullAppointmentReportDTO>> getAppointmentsWithoutPrescription() {
+                return ResponseEntity.ok(
+                                appointmentService.getAppointmentsWithoutPrescription());
+        }
 
-    }
+        @GetMapping("/status/{status}")
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<List<AppointmentResponse>> getByStatus(
+                        @PathVariable Status status) {
+                return ResponseEntity.ok(
+                                appointmentService.searchByStatus(status));
+        }
 
-    // Appointments without prescription
-    @GetMapping("/reports/without-prescription")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<List<FullAppointmentReportDTO>> getAppointmentsWithoutPrescription() {
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsWithoutPrescription()
-        );
-    }
-
-    @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<List<AppointmentResponse>> getByStatus(
-            @PathVariable Status status
-    ) {
-        return ResponseEntity.ok(
-                appointmentService.searchByStatus(status)
-        );
-    }
-    @GetMapping("/sortbyDate")
-    @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<List<AppointmentResponse>> sortByDate() {
-        return ResponseEntity.ok(appointmentService.sortByDate());
-    }
+        @GetMapping
+        @PreAuthorize("hasAnyRole('DOCTOR','NURSE','RECEPTIONIST','ADMIN')")
+        public ResponseEntity<org.springframework.data.domain.Page<AppointmentResponse>> getAllAppointments(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+                return ResponseEntity.ok(appointmentService.getAllAppointments(page, size));
+        }
 }

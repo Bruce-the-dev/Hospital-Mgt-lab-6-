@@ -19,15 +19,16 @@ public class AppointmentGraphQLController {
 
     private final AppointmentService appointmentService;
 
-
     @QueryMapping
     public AppointmentResponse getAppointmentById(@Argument Long id) {
         return appointmentService.getById(id);
     }
 
     @QueryMapping
-    public List<AppointmentResponse> getAllAppointments() {
-        return appointmentService.sortByDate(); // can also just return all
+    public org.springframework.data.domain.Page<AppointmentResponse> getAllAppointments(
+            @org.springframework.graphql.data.method.annotation.Argument Integer page,
+            @org.springframework.graphql.data.method.annotation.Argument Integer size) {
+        return appointmentService.getAllAppointments(page == null ? 0 : page, size == null ? 10 : size);
     }
 
     @QueryMapping
@@ -46,7 +47,8 @@ public class AppointmentGraphQLController {
     }
 
     @QueryMapping
-    public CompletableFuture<List<FullAppointmentReportDTO>> getFullAppointmentReport(@Argument int page, @Argument int size) {
+    public CompletableFuture<List<FullAppointmentReportDTO>> getFullAppointmentReport(@Argument int page,
+            @Argument int size) {
         return appointmentService.getFullAppointmentReport(page, size);
     }
 
@@ -54,7 +56,6 @@ public class AppointmentGraphQLController {
     public List<FullAppointmentReportDTO> getAppointmentsWithoutPrescription() {
         return appointmentService.getAppointmentsWithoutPrescription();
     }
-
 
     @MutationMapping
     public AppointmentResponse addAppointment(@Argument AppointmentInput input) {
@@ -72,4 +73,3 @@ public class AppointmentGraphQLController {
         return true;
     }
 }
-

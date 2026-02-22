@@ -71,10 +71,9 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponse> sortByDate() {
-        return appointmentRepository.findAll(Sort.by("appointmentDate")).stream()
-                .map(AppointmentMapper::toResponse)
-                .toList();
+    public Page<AppointmentResponse> getAllAppointments(int page, int size) {
+        return appointmentRepository.findAll(PageRequest.of(page, size, Sort.by("appointmentDate").descending()))
+                .map(AppointmentMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

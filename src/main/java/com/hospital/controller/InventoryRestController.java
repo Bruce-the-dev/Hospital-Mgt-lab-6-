@@ -21,12 +21,13 @@ public class InventoryRestController {
 
     private final InventoryService inventoryService;
 
-
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @Operation(summary = "Get all inventory items")
-    public ResponseEntity<List<InventoryViewDTO>> getAllInventory() {
-        return ResponseEntity.ok(inventoryService.getInventoryView());
+    public ResponseEntity<Page<InventoryViewDTO>> getAllInventory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(inventoryService.getInventoryView(page, size));
     }
 
     @GetMapping("/low-stock")
@@ -53,14 +54,13 @@ public class InventoryRestController {
         return ResponseEntity.ok(inventoryService.getInventoryPage(page, size));
     }
 
-
     @PostMapping("/{medicationId}/add")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     @Operation(summary = "Add stock for a medication")
     public ResponseEntity<Void> addStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId,
             @Parameter(description = "Quantity to add") @RequestParam int quantity) {
-                inventoryService.addStock(medicationId, quantity);
+        inventoryService.addStock(medicationId, quantity);
         return ResponseEntity.ok().build();
     }
 
@@ -70,7 +70,7 @@ public class InventoryRestController {
     public ResponseEntity<Void> updateStock(
             @Parameter(description = "Medication ID") @PathVariable Long medicationId,
             @Parameter(description = "New quantity") @RequestParam int quantity) {
-                inventoryService.updateStock(medicationId, quantity);
+        inventoryService.updateStock(medicationId, quantity);
         return ResponseEntity.ok().build();
     }
 

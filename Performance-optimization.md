@@ -25,13 +25,13 @@ This report documents the advanced optimizations implemented in the Hospital Man
 *   **After**: Database filters by quantity using a B-Tree index.
 
 ### B. Scalable Data Handling (Pagination)
-*   **Target**: `getAllPatients` and `getAllDoctors`.
-*   **Before**: Returned a full `List` of all records (O(N) Memory footprint).
-*   **After**: Paginated `Page` of results.
+*   **Target**: `getAllPatients`, `getAllDoctors`, `getAllAppointments`, and `getInventoryView`.
+*   **Before**: Returned full `List` objects (O(N) Memory footprint).
+*   **After**: Paginated `Page` of results across all main entities.
 *   **Impact**: Prevents "Out of Memory" errors as the hospital database grows to thousands of records.
 
 ### C. Batch Fetching (Query Optimization)
-*   **Target**: `PrescriptionService.createPrescription`.
+*   **Target**: `PrescriptionService` (Create & Update methods).
 *   **Before**: Queried the database for *every* medicine in a loop (Select * N).
 *   **After**: Used `findAllById()` to fetch all medicines in one batch (Network O(1)).
 *   **Impact**: Massive reduction in database connection overhead and network latency.

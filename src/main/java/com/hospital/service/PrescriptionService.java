@@ -106,14 +106,23 @@ public class PrescriptionService {
         if (request.getMedications() != null) {
             prescription.getPrescriptionMedications().clear();
 
+            List<Long> medIds = request.getMedications().stream()
+                    .map(PrescriptionMedicationRequest::getMedicationId)
+                    .toList();
+            List<Medication> allMeds = medicationRepository.findAllById(medIds);
+            java.util.Map<Long, Medication> medMap = allMeds.stream()
+                    .collect(java.util.stream.Collectors.toMap(Medication::getMedicationId, m -> m));
+
             for (PrescriptionMedicationRequest mr : request.getMedications()) {
+                Medication medication = medMap.get(mr.getMedicationId());
+                if (medication == null) {
+                    throw new ResourceNotFoundException("Medication not found with id " + mr.getMedicationId());
+                }
+
                 PrescriptionMedication pm = new PrescriptionMedication();
                 pm.setDosage(mr.getDosage());
                 pm.setQuantity(mr.getQuantity());
-                pm.setMedication(
-                        medicationRepository.findById(mr.getMedicationId())
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                        "Medication not found with id " + mr.getMedicationId())));
+                pm.setMedication(medication);
                 pm.setPrescription(prescription);
                 prescription.getPrescriptionMedications().add(pm);
             }

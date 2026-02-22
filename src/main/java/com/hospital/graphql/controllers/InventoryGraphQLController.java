@@ -29,7 +29,7 @@ public class InventoryGraphQLController {
     }
 
     @QueryMapping
-    public List<InventoryViewDTO> inventoryView() {
-        return inventoryService.getInventoryView();
+    public Page<InventoryViewDTO> inventoryView(@Argument Integer page, @Argument Integer size) {
+        return inventoryService.getInventoryView(page == null ? 0 : page, size == null ? 10 : size);
     }
 }
