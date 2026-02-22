@@ -91,13 +91,10 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-//    @Cacheable(
-//            value = "appointmentReports",
-//            key = "'fullReport_' + #page + '_' + #size")
     @Async("reportExecutor")
     public CompletableFuture<List<FullAppointmentReportDTO>> getFullAppointmentReport(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentDate").descending());
-        return CompletableFuture.completedFuture(appointmentRepository.findFullAppointmentReport(pageable));
+        return CompletableFuture.supplyAsync(() -> appointmentRepository.findFullAppointmentReport(pageable));
     }
 
     @Transactional(readOnly = true)
@@ -114,11 +111,11 @@ public class AppointmentService {
 
         Patient patient = input.getPatientId() == null ? null
                 : patientRepository.findById(input.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
         Doctor doctor = input.getDoctorId() == null ? null
                 : doctorRepository.findById(input.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
 
         AppointmentMapper.updateEntity(appointment, input, patient, doctor);
 

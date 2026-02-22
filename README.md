@@ -117,3 +117,28 @@ Specification / dynamic queries are not used in Appointment since filtering is l
 3.  **Logout** (`POST /auth/logout`) with the token in Header.
 4.  **Access** the protected route again -> **401 Unauthorized**.
 
+## 🚀 Advanced Optimization (Final Phase)
+
+This phase focused on enhancing system performance, scalability, and data integrity through asynchronous programming and concurrency management.
+
+### 1. Asynchronous Request Handling
+**Scenario**: Generating large medical reports can be time-consuming and block the main server thread.
+-   **Optimization**: Refactored `getFullAppointmentReport` to use `CompletableFuture.supplyAsync`.
+-   **Impact**: Reports are now generated in background threads from a dedicated pool (`reportExecutor`), allowing the API to remain responsive and non-blocking.
+
+### 2. Concurrency & Thread Safety
+**Scenario**: Multiple doctors prescribing the same medicine simultaneously could cause "race conditions," leading to incorrect stock levels.
+-   **Optimization**: Implemented `synchronized` blocks in `InventoryService.deductStock`.
+-   **Impact**: Ensures atomic updates to medicine inventory, preventing the "Double-Spend" problem and guaranteeing data integrity during high-load operations.
+
+### 3. Data & Algorithmic Optimization
+**Scenario**: Filtering low-stock items in Java memory (O(N)) is inefficient as the inventory grows.
+-   **Optimization**: Moved filtering to the database level using indexed JPA queries (`findLowStockItems`).
+-   **Impact**: Reduced time complexity from O(N) to O(log N) and significantly lowered memory footprint across the JVM.
+
+### 🧪 How to Verify Performance
+1.  Run the application.
+2.  Trigger any service method (e.g., fetch inventory or reports).
+3.  Monitor the console logs.
+4.  Look for `[PERFORMANCE]` tags provided by the `ServiceMonitorAspect` to see exact execution times in milliseconds.
+5.  Verification of Async: Look for thread names starting with `report-` for asynchronous report tasks.

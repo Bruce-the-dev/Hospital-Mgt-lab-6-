@@ -40,4 +40,17 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                 JOIN i.medication m
             """)
     Page<InventoryViewDTO> findInventoryWithMedication(Pageable pageable);
+
+    @Query("""
+                SELECT new com.hospital.model.DTO.InventoryViewDTO(
+                    i.medication.medicationId,
+                    m.name,
+                    i.quantity,
+                    i.lastUpdated
+                )
+                FROM Inventory i
+                JOIN i.medication m
+                WHERE i.quantity <= :lowStockLimit
+            """)
+    List<InventoryViewDTO> findLowStockItems(int lowStockLimit);
 }

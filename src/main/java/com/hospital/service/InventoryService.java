@@ -25,8 +25,6 @@ public class InventoryService {
     private final MedicationRepository medicationRepository;
     private static final int LOW_STOCK = 10;
 
-
-
     @CacheEvict(value = "inventory", key = "#medicationId")
     public void addStock(Long medicationId, int quantity) {
         Medication medication = medicationRepository.findById(medicationId)
@@ -51,17 +49,18 @@ public class InventoryService {
     }
 
     @CacheEvict(value = "inventory", key = "#medicationId")
-    public boolean deductStock(Long medicationId, int amount) {
+    public synchronized boolean deductStock(Long medicationId, int amount) {
         Inventory inventory = inventoryRepository.findByMedicationMedicationId(medicationId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        if (inventory.getQuantity() < amount) return false;
+        if (inventory.getQuantity() < amount)
+            return false;
 
         inventory.setQuantity(inventory.getQuantity() - amount);
         inventory.setLastUpdated(LocalDateTime.now());
+        inventoryRepository.save(inventory); // Manually saving to ensure immediate flush within synchronized block
         return true;
     }
-
 
     @Cacheable(value = "inventory", key = "#medicationId")
     @Transactional(readOnly = true)
@@ -79,10 +78,9 @@ public class InventoryService {
 
     @Transactional(readOnly = true)
     public List<InventoryViewDTO> getLowStockItems() {
-        return getInventoryView().stream()
-                .filter(i -> i.getQuantity() <= LOW_STOCK)
-                .toList();
+        return inventoryRepository.findLowStockItems(LOW_STOCK);
     }
+
     @Transactional(readOnly = true)
     public Page<InventoryViewDTO> getInventoryPage(int page, int size) {
         return inventoryRepository.findInventoryWithMedication(PageRequest.of(page, size));
