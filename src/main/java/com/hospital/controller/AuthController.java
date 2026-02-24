@@ -103,8 +103,8 @@ public class AuthController {
                 return response;
         }
 
-        @GetMapping("/")
-        public String home() {
-                return "Login successful. Welcome to Hospital Management System!";
-        }
+//        @GetMapping("/")
+//        public String home() {
+//                return "Login successful. Welcome to Hospital Management System!";
+//        }
 }
