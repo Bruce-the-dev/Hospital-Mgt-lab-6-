@@ -16,6 +16,7 @@ public class UserMapper {
         user.setFullName(input.getFullName());
         user.setPassword(input.getPassword()); // hashed later in service
         user.setRole(input.getRole());
+        user.setEmail(input.getEmail());
 
         if (input.getStatus() != null) {
             user.setStatus(input.getStatus());
@@ -41,6 +42,9 @@ public class UserMapper {
         if (input.getRole() != null) {
             user.setRole(input.getRole());
         }
+        if (input.getEmail() != null) {
+            user.setEmail(input.getEmail());
+        }
 
         if (input.getStatus() != null) {
             user.setStatus(input.getStatus());
@@ -54,7 +58,8 @@ public class UserMapper {
                 user.getFullName(),
                 user.getRole(),
                 user.isStatus(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getEmail()
         );
     }
 }

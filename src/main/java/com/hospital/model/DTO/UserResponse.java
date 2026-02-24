@@ -16,4 +16,5 @@ public class UserResponse {
     private Role role;
     private boolean status;
     private LocalDateTime createdAt;
+    private String email;
 }

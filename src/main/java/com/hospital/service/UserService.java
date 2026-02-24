@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -61,11 +61,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> getAllUsers(  int page,
-                                            int size,
-                                            String sortBy,
-                                            String direction) {
-        Pageable pageable = PageRequest.of(page, size, direction.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending());
+    public Page<UserResponse> getAllUsers(int page,
+                                          int size,
+                                          String sortBy,
+                                          String direction) {
+        Pageable pageable = PageRequest.of(page, size, direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
         return userRepository.findAll(pageable)
                 .map(UserMapper::toResponse);
 
@@ -80,8 +80,8 @@ public class UserService {
 
         // Prevent username collision
         if (input.getUsername() != null &&
-            !input.getUsername().equals(user.getUsername()) &&
-            userRepository.existsByUsername(input.getUsername())) {
+                !input.getUsername().equals(user.getUsername()) &&
+                userRepository.existsByUsername(input.getUsername())) {
 
             throw new IllegalArgumentException(
                     "Username already exists: " + input.getUsername()
@@ -121,4 +121,17 @@ public class UserService {
                 );
         user.setStatus(false);
     }
+
+    // Authenticate user (Login)
+    public String authenticateUser(String username, String password) {
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found with username " + username));
+
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            return "User successfully authenticated";
+        } // User authenticated
+        return "Wrong password";
+    }
+
+
 }

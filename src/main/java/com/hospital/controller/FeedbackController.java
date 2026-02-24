@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/feedbacks")
@@ -31,6 +31,7 @@ public class FeedbackController {
             @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
     })
     @PostMapping
+
     public ResponseEntity<FeedbackResponseDTO> create(
             @Valid @RequestBody FeedbackRequestDTO dto) {
         return new ResponseEntity<>(feedbackService.create(dto), HttpStatus.CREATED);

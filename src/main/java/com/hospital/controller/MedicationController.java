@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.hospital.model.Medication;
@@ -33,6 +34,7 @@ public class MedicationController {
             @ApiResponse(responseCode = "500", description = "Server error")
     })
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     public ResponseEntity<Medication> createMedication(@Valid @RequestBody MedicationCreateRequest request) {
         if (request.getName() == null || request.getDescription() == null) {
             return ResponseEntity.badRequest().build();
@@ -43,6 +45,7 @@ public class MedicationController {
     }
 
     @Operation(summary = "Get all medications")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @ApiResponse(responseCode = "200", description = "List of medications")
     @GetMapping("/all")
     public ResponseEntity<Page<Medication>> getAllMedications(
@@ -55,6 +58,7 @@ public class MedicationController {
         return ResponseEntity.ok(output);
     }
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN','RECEPTIONIST')")
     @Operation(summary = "Get medication by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Medication found"),
@@ -72,6 +76,7 @@ public class MedicationController {
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "Medication not found")
     })
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Medication> updateMedication(
             @PathVariable Long id,
@@ -91,6 +96,8 @@ public class MedicationController {
             @ApiResponse(responseCode = "404", description = "Medication not found")
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
+
     public ResponseEntity<Void> deleteMedication(@PathVariable Long id) {
         medicationService.deleteMedication(id);
         return ResponseEntity.noContent().build();
