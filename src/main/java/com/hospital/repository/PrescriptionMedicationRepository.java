@@ -12,6 +12,5 @@ public interface PrescriptionMedicationRepository
 
     List<PrescriptionMedication> findByPrescriptionPrescriptionId(Long prescriptionId);
 
-    void deleteByPrescriptionPrescriptionId(Long prescriptionId);
 }
 

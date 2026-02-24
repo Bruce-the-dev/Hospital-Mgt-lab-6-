@@ -88,7 +88,7 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "appointmentReports", key = "'fullReport'")
+    @Cacheable(value = "appointmentReports", key = "'fullReport_'+#page+'_'+#size")
     public List<FullAppointmentReportDTO> getFullAppointmentReport(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentDate").descending());
         return appointmentRepository.findFullAppointmentReport(pageable);
