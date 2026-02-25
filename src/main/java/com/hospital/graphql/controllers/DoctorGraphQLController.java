@@ -5,6 +5,8 @@ import com.hospital.model.DTO.DoctorResponse;
 import com.hospital.service.DoctorService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -25,9 +27,9 @@ public class DoctorGraphQLController {
     }
 
     @QueryMapping
-    public org.springframework.data.domain.Page<DoctorResponse> getAllDoctors(
-            @org.springframework.graphql.data.method.annotation.Argument Integer page,
-            @org.springframework.graphql.data.method.annotation.Argument Integer size) {
+    public Page<DoctorResponse> getAllDoctors(
+            @Argument Integer page,
+            @Argument Integer size) {
         return doctorService.getAllDoctors(page == null ? 0 : page, size == null ? 10 : size);
     }
 

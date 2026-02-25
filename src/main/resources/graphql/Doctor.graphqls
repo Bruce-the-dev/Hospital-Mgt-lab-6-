@@ -16,7 +16,7 @@ input DoctorInput {
 
 extend type Query {
     getDoctorById(id: ID!): DoctorResponse
-    getAllDoctors: [DoctorResponse!]!
+    getAllDoctors(page: Int! ,size:Int!): [DoctorResponse!]!
     getDoctorsByDepartment(departmentId: ID!): [DoctorResponse!]!
 }
 

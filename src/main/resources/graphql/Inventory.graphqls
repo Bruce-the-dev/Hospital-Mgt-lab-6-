@@ -6,7 +6,7 @@ type InventoryViewDTO {
 }
 
 extend type Query {
-    inventoryView: [InventoryViewDTO!]!
+    inventoryView(page: Int! ,size:Int!): [InventoryViewDTO!]!
     lowStockItems: [InventoryViewDTO!]!
     inventoryViewPage(page: Int!, size: Int!): InventoryViewDTO!
 }

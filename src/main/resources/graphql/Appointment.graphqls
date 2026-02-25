@@ -55,7 +55,7 @@ input pagination{
 }
 type Query {
     getAppointmentById(id: ID!): Appointment
-    getAllAppointments: [Appointment!]!
+    getAllAppointments(page: Int! ,size:Int!): [Appointment!]!
     searchAppointmentsByStatus(status: Status!): [Appointment!]!
     getAppointmentsByPatient(patientId: ID!): [AppointmentReport!]!
     getAppointmentsByDoctor(doctorId: ID!): [AppointmentReport!]!

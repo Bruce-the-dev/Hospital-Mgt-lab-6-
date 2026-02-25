@@ -3,18 +3,23 @@ package com.hospital.service;
 import com.hospital.exceptions.ResourceNotFoundException;
 import com.hospital.model.DTO.FeedbackRequestDTO;
 import com.hospital.model.DTO.FeedbackResponseDTO;
+import com.hospital.model.Doctor;
 import com.hospital.model.Feedback;
+import com.hospital.model.Patient;
 import com.hospital.model.mapper.FeedbackMapper;
 import com.hospital.repository.DoctorRepository;
 import com.hospital.repository.FeedbackRepository;
 import com.hospital.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -33,19 +38,19 @@ public class FeedbackService {
         return FeedbackMapper.toDto(feedback);
     }
 
-    @CacheEvict(value = "feedback", allEntries = true)
+    @CachePut(value = "feedback", key = "#id")
     public FeedbackResponseDTO create(FeedbackRequestDTO dto) {
         Feedback feedback = FeedbackMapper.toEntity(dto);
 
-        java.util.concurrent.CompletableFuture<com.hospital.model.Patient> patientFuture = java.util.concurrent.CompletableFuture
+        CompletableFuture<Patient> patientFuture = CompletableFuture
                 .supplyAsync(() -> patientRepository.findById(dto.getPatientId())
                         .orElseThrow(() -> new RuntimeException("Patient not found")));
 
-        java.util.concurrent.CompletableFuture<com.hospital.model.Doctor> doctorFuture = java.util.concurrent.CompletableFuture
+        CompletableFuture<Doctor> doctorFuture = CompletableFuture
                 .supplyAsync(() -> doctorRepository.findById(dto.getDoctorId())
                         .orElseThrow(() -> new RuntimeException("Doctor not found")));
 
-        java.util.concurrent.CompletableFuture.allOf(patientFuture, doctorFuture).join();
+        CompletableFuture.allOf(patientFuture, doctorFuture).join();
 
         feedback.setPatient(patientFuture.join());
         feedback.setDoctor(doctorFuture.join());

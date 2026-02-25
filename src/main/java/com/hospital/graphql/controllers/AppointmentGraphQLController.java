@@ -7,6 +7,7 @@ import com.hospital.model.DTO.FullAppointmentReportDTO;
 import com.hospital.model.Status;
 import com.hospital.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
 
@@ -25,9 +26,9 @@ public class AppointmentGraphQLController {
     }
 
     @QueryMapping
-    public org.springframework.data.domain.Page<AppointmentResponse> getAllAppointments(
-            @org.springframework.graphql.data.method.annotation.Argument Integer page,
-            @org.springframework.graphql.data.method.annotation.Argument Integer size) {
+    public Page<AppointmentResponse> getAllAppointments(
+            @Argument Integer page,
+            @Argument Integer size) {
         return appointmentService.getAllAppointments(page == null ? 0 : page, size == null ? 10 : size);
     }
 
