@@ -36,7 +36,12 @@ This report documents the advanced optimizations implemented in the Hospital Man
 *   **After**: Used `findAllById()` to fetch all medicines in one batch (Network O(1)).
 *   **Impact**: Massive reduction in database connection overhead and network latency.
 
-## 📈 Performance Summary
+### D. Screenshots showing system before and after optimizations
+*system under heavy load with minimal optimizations **CPU usage up to 40%**
+![Visual Vm screenshot](img.png)
+* system after implementing the above optimizations **CPU usage down to less than 5%**
+![Visual Vm screenshot](img_1.png)
+## Performance Summary
 
 | Metric | Before | After | Gain |
 | :--- | :--- | :--- | :--- |

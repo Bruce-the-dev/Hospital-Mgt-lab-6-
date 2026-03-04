@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 "/auth/**","/favicon.ico",
                                 "/graphql", "/oauth2/**",
                                 "/login/**", "/",
-                                "/graphiql").permitAll()
+                                "/graphiql","/inform").permitAll()
 
                         .requestMatchers("/api/users/**")
                         .hasRole("ADMIN")

@@ -1,6 +1,6 @@
-# 🏥 Hospital Management System
+# Hospital Management System
 
-## 📖 Overview
+## Overview
 
 
 ## Features Implemented
@@ -65,7 +65,7 @@ Endpoint	Method	Description
 /api/appointments/reports/full	GET	Get full appointment report (patient + doctor + department)
 /api/appointments	POST	Create a new appointment
 /api/appointments/{id}	PUT	Update an existing appointment
-/api/appointments/{id}	DELETE	Delete an appointment
+/api/appointments/{id}	DELETE: Delete an appointment
 
 ### Technologies Used
 
@@ -88,7 +88,7 @@ Specification / dynamic queries are not used in Appointment since filtering is l
 
 ---
 
-## 🔒 Security Concepts (Lab 7)
+## Security Concepts (Lab 7)
 
 ### CORS vs CSRF
 
@@ -103,7 +103,7 @@ Specification / dynamic queries are not used in Appointment since filtering is l
 -   **Why disable it?** We use **JWT (Stateless)** authentication.
 -   **Explanation**: CSRF attacks rely on the browser automatically sending cookies (session IDs). Since we send our token manually in the `Authorization` header, the browser doesn't send it automatically for malicious links, making standard CSRF attacks impossible. Therefore, we disable CSRF for our API.
 
-### 🧪 How to Test
+### How to Test
 
 #### 1. OAuth2 Login
 1.  Open your browser to `http://localhost:8080/oauth2/authorization/google`.
@@ -117,7 +117,7 @@ Specification / dynamic queries are not used in Appointment since filtering is l
 3.  **Logout** (`POST /auth/logout`) with the token in Header.
 4.  **Access** the protected route again -> **401 Unauthorized**.
 
-## 🚀 Advanced Optimization (Final Phase)
+## Advanced Optimization (Final Phase)
 
 This phase focused on enhancing system performance, scalability, and data integrity through asynchronous programming and concurrency management.
 
@@ -136,7 +136,7 @@ This phase focused on enhancing system performance, scalability, and data integr
 -   **Optimization**: Moved filtering to the database level using indexed JPA queries (`findLowStockItems`).
 -   **Impact**: Reduced time complexity from O(N) to O(log N) and significantly lowered memory footprint across the JVM.
 
-### 🧪 How to Verify Performance
+### How to Verify Performance
 1.  Run the application.
 2.  Trigger any service method (e.g., fetch inventory or reports).
 3.  Monitor the console logs.
